@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tile Shop 3D Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, #f0f8ff, #e6e6fa);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+        h1 { 
+            color: #6a0dad; 
+            text-align: center; 
+            margin-top: 60px; /* Space for back button */
+        }
+        /* Upload Containers */
+        .upload-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            max-width: 800px;
+        }
+        .tile-section {
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 180px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+        .tile-section:hover {
+            border-color: #8a2be2;
+            box-shadow: 0 4px 12px rgba(138,43,226,0.2);
+        }
+        .tile-section.has-image {
+            border-color: #4caf50;
+            box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+        }
+        .tile-section h3 { 
+            margin: 0 0 10px; 
+            color: #6a0dad; 
+            font-size: 1.1rem; 
+        }
+        .tile-section input[type="file"] {
+            margin: 10px 0;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .preview {
+            width: 150px;
+            height: 100px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin: 10px auto;
+            object-fit: cover;
+            display: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .preview-container {
+            margin: 10px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clear-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 5px;
+            display: none;
+            font-size: 0.8rem;
+        }
+        .clear-btn:hover { background: #d32f2f; }
+        .error { 
+            color: red; 
+            font-size: 0.9rem; 
+            display: none; 
+            margin-top: 5px;
+        }
+        .drag-text {
+            font-size: 0.9rem;
+            color: #888;
+            margin: 10px 0;
+            display: block;
+        }
+        /* Generate Button */
+        #generateBtn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8a2be2, #9370db);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 4px 10px rgba(138,43,226,0.3);
+            transition: transform 0.2s;
+        }
+        #generateBtn:hover { transform: translateY(-2px); }
+        #generateBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Error Display */
+        #error { 
+            color: red; 
+            text-align: center; 
+            display: none; 
+            margin: 10px; 
+        }
+        /* 3D Canvas - Container Below Uploads */
+        canvas { 
+            display: none; /* Hidden initially */
+            width: 100%; 
+            max-width: 1200px; 
+            height: 600px; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            margin: 20px auto; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        @media (max-width: 600px) {
+            .upload-container { flex-direction: column; align-items: center; }
+            .tile-section { width: 90%; }
+            .preview { 
+                width: 120px; 
+                height: 80px;
+            }
+            .preview-container { min-height: 80px; }
+            canvas { height: 400px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="history.back()">Back</button>
+
+    <h1>Tile Shop 3D Viewer</h1>
+    
+    <div class="upload-container">
+        <!-- L Tile -->
+        <div class="tile-section" data-category="L">
+            <h3>L Tile</h3>
+            <input type="file" id="fileInputL" accept="image/*">
+            <div class="preview-container">
+                <img id="previewL" class="preview" alt="L Preview">
+                <span class="drag-text">Drag image here or click input</span>
+            </div>
+            <button class="clear-btn" id="clearL">Clear</button>
+            <p class="error" id="errorL">Please upload an image.</p>
+        </div>
+        
+        <!-- D Tile -->
+        <div class="tile-section" data-category="D">
+            <h3>D Tile</h3>
+            <input type="file" id="fileInputD" accept="image/*">
+            <div class="preview-container">
+                <img id="previewD" class="preview" alt="D Preview">
+                <span class="drag-text">Drag image here or click input</span>
+            </div>
+            <button class="clear-btn" id="clearD">Clear</button>
+            <p class="error" id="errorD">Please upload an image.</p>
+        </div>
+        
+        <!-- HL Tile -->
+        <div class="tile-section" data-category="HL">
+            <h3>HL Tile</h3>
+            <input type="file" id="fileInputHL" accept="image/*">
+            <div class="preview-container">
+                <img id="previewHL" class="preview" alt="HL Preview">
+                <span class="drag-text">Drag image here or click input</span>
+            </div>
+            <button class="clear-btn" id="clearHL">Clear</button>
+            <p class="error" id="errorHL">Please upload an image.</p>
+        </div>
+        
+        <!-- F Tile -->
+        <div class="tile-section" data-category="F">
+            <h3>F Tile</h3>
+            <input type="file" id="fileInputF" accept="image/*">
+            <div class="preview-container">
+                <img id="previewF" class="preview" alt="F Preview">
+                <span class="drag-text">Drag image here or click input</span>
+            </div>
+            <button class="clear-btn" id="clearF">Clear</button>
+            <p class="error" id="errorF">Please upload an image.</p>
+        </div>
+    </div>
+    
+    <button id="generateBtn">Generate</button>
+    
+    <div id="error"></div>
+    
+    <!-- 3D Canvas (container below uploads) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
